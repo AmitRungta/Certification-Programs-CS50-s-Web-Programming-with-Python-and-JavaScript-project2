@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block ExtraStyle %}
+<style>
+  .row>div {
+    padding: 20px;
+    background-color: #eee;
+    border: solid gray;
+    box-shadow: blue;
+  }
+</style>
+{% endblock %}
+
+
+{% block heading %}
+Welcome to Flack...
+{% endblock %}
+
+{% block BodyData %}
+
+<script>
+  // Check and load user page if required.
+  fnLoadUserPage()
+</script>
+
+
+<br>
+
+<div class="container">
+  <div class="row">
+    <div class="mx-auto" style="width: 80%; max-width: 600px;" >
+      <h3 style="text-align: center;">Sign In.</h2>
+        <p style="text-align: center;">Sign in using your account.</p>
+        <form id="LoginForm">
+          <div class="form-group">
+
+            <label>User Name</label>
+            <input type="text" autofocus class="form-control" placeholder="User Name" id="inputUserName">
+          </div>
+
+          <button class="btn btn-primary" onclick="fnLogin(event)">Login</button>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+{% endblock %}

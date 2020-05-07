@@ -1,0 +1,36 @@
+* {
+  box-sizing: border-box; }
+
+/* Style the body */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0; }
+
+/* this is the generic settings for the header footer.
+ we will use this to show the inheritance in the web page.
+ */
+.header, .footer {
+  text-align: center;
+  color: white;
+  padding: 10px; }
+
+/* Header/logo Title */
+.header {
+  background: #1abc9c; }
+  .header h1 {
+    /* Increase the font size of the heading 
+     This helps us to demonstate the nesing feature of scss.  
+    */
+    font-size: 30px; }
+  .header h2 {
+    /* Change the color of Heading 2.
+     This helps us to demonstate the nesing feature of scss.  
+     */
+    font-size: 20px;
+    color: #ddd; }
+
+/* Footer */
+.footer {
+  padding: 5px;
+  background: #ddd; }
+

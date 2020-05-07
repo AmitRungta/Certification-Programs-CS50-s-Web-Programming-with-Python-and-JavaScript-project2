@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+
+{% block NavigationBar %}
+<div class="NavigationBar">
+    <a href="#" class="right" onclick="fnLogout(event)" >Log Out</a>
+  </div>
+{% endblock %}
+
+{% block heading %}
+<div style="display: inline;" id="UserName"></div>, Welcome to Flack !!!
+
+<script>
+  document.getElementById("UserName").innerHTML = fnGetCurUserName ();
+</script>
+
+{% endblock %}
