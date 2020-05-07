@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+import jsons
 
 from flask import Flask, jsonify, render_template, request , redirect , url_for
 from flask_socketio import SocketIO, emit
@@ -8,9 +9,6 @@ from flask_socketio import SocketIO, emit
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
-
-
-
 
 class UserData:
     """class to save user name and his registered channels. """
@@ -59,6 +57,12 @@ def index():
     return render_template("index.html")
 
 
+
+@app.route("/GetChannelList", methods = ['POST'])
+def GetChannelList():
+    return jsons.dump ({"success": True , "data": listOfChannels})
+
+
 @app.route("/AddChannel", methods = ['GET', 'POST'])
 def AddChannel():
 
@@ -81,9 +85,13 @@ def AddChannel():
     if True == AlreadyPresent :
         return jsonify({"success": False , "reason": "Channel with given name already present"})
 
+    # here i am trying to maintain the case for the genre if already added with same.
+    ExistingGenre = next ( ( x.ChannelGenre for x in listOfChannels if x.ChannelGenre.lower() == channelGenre.lower() ) , None )
+    if ( ExistingGenre ) :
+        channelGenre = ExistingGenre
     listOfChannels.append ( Channeldata(channelName,channelGenre))
 
-    # emit("Channel List Updated", listOfChannels, broadcast=True)
+    emit("Channel_List_Updated", jsons.dump ({"success": True , "data": listOfChannels}), broadcast=True , namespace='/ChannelList' )
     return jsonify({"success": True })
 
 

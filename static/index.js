@@ -136,7 +136,8 @@ function fnAddChannel(event) {
 document.addEventListener('DOMContentLoaded', () => {
 
     let UsrErrMsgNode = document.querySelector('#UserErrMsg') ; 
-    if ( UsrErrMsgNode && UsrErrMsgNode.innerHTML === "" )
+    if ( UsrErrMsgNode && UsrErrMsgNode.innerHTML.trim() === "" )
+    {
         UsrErrMsgNode.style.display = "none";
-
+    }
 });
