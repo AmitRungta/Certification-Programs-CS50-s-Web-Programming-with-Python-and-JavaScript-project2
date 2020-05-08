@@ -30,7 +30,8 @@ class UserData:
 
 class PostData:       
     """class to store individual post data. """
-    def __init__(self, UserName , PostDate , PostString,PostID):
+    def __init__(self, ChannelName , UserName , PostDate , PostString,PostID):
+        self.ChannelName = ChannelName
         self.UserName = UserName
         self.PostDate = PostDate
         self.PostString = PostString
@@ -44,8 +45,8 @@ class Channeldata:
         self.ChannelGenre = ChannelGenre
 
 
-# list of selected users.
-listOfUsers =[]
+# list of posts.
+listOfPostData =[]
 
 # list of channels.
 listOfChannels =[]
@@ -93,6 +94,27 @@ def AddChannel():
 
     emit("Channel_List_Updated", jsons.dump ({"success": True , "data": listOfChannels}), broadcast=True , namespace='/ChannelList' )
     return jsonify({"success": True })
+
+
+
+
+@app.route("/ShowChannel", methods = ['GET', 'POST'])
+def ShowChannel():
+
+    if request.method == 'GET':
+        # if the user have come here directly then move back to index page.
+        return render_template("showchannel.html")
+
+    channelName = request.form.get('ChannelName' , "")
+    if ( ( None == channelName ) or (not(channelName and channelName.strip())) ) :
+        return jsonify({"success": False , "reason": "Channel name is empty"})
+    channelName = channelName.strip()
+    AlreadyPresent = any ( x for x in listOfChannels if x.ChannelName.lower() == channelName.lower())
+    if False == AlreadyPresent :
+        return jsonify({"success": False , "reason": "Channel with given name is not present"})
+
+    postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
+    return jsonify({"success": True , 'data':postlist })
 
 
 

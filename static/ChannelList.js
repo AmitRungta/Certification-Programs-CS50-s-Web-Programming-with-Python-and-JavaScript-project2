@@ -1,8 +1,10 @@
-
-
 // This function will show the list of channels.
 function fnUpdateChannelList ( ChannelList)
 {
+    let CurChannelName = fnGetCurChannelName() ;
+    if ( CurChannelName === "" )
+        CurChannelName = fnGetLastAddedChannelName() ;
+
     if ( null == ChannelList )
     {
         // Fetch a new channel list from the application
@@ -51,25 +53,84 @@ function fnUpdateChannelList ( ChannelList)
                 return 1 ; 
             } )
 
+            
+            // Lets get the list of unique genre names..
+            let seen = new Set();
+            let UniqueGenreList = ChannelDataList.filter(item => {
+                let k = item.ChannelGenre;
+                return seen.has(k) ? false : seen.add(k);
+            });
 
-            // Template for roll results
-            const template = Handlebars.compile("<li>{{ value }}</li>");
+            
 
-            ChannelListNode.innerHTML = "Channel List";
-            ChannelListNode.innerHTML += "<ol>";
-            ChannelDataList.forEach(function(channeldata) {
-                const content = template({ 'value': channeldata.ChannelName + " - " + channeldata.ChannelGenre });
-                ChannelListNode.innerHTML += content;
-              });
-            ChannelListNode.innerHTML += "</ol>";
+            ChannelListNode.innerHTML = "<b>Channel List</b>";
+
+            var theTemplateScriptChannel = document.querySelector('#headingtemplateChannel').innerHTML ;
+            var theTemplateChannel = Handlebars.compile (theTemplateScriptChannel);
+
+            var theTemplateScriptGenre = document.querySelector('#headingtemplateGenre').innerHTML ;
+            var theTemplateGenre = Handlebars.compile (theTemplateScriptGenre );
+
+
+            // Now lets generate the list of channels for each genre
+            for ( loopindex in UniqueGenreList )
+            {
+                let CurChannelGenere = UniqueGenreList[loopindex].ChannelGenre ;
+                let CurGenreChannelList = ChannelDataList.filter(item => {
+                    let k = item.ChannelGenre;
+                    return ( k === CurChannelGenere ) ? true : false ;
+                });
+    
+                let len = CurGenreChannelList.length ;
+                let selectedgenre = ( 0 == loopindex ) ? true : false ; 
+                if ( CurChannelName != "" )
+                {
+                    let SelChannelGenre = CurGenreChannelList.filter(item => {
+                        let k = item.ChannelName;
+                        return ( k === CurChannelName ) ? true : false ;
+                    });
+                    selectedgenre =  SelChannelGenre.length > 0 ;
+                }
+                
+
+                // WE have out current genre and list of channels for this genre...
+                const showdata = selectedgenre ? "show" : "" ;
+                const channelcontent = theTemplateChannel({ 'values': CurGenreChannelList , 'CurChannelGenere': CurChannelGenere , 'showdata' : showdata });
+                const visiblecmd = selectedgenre ? "true" : "false" ;
+                const collapsedcmd = selectedgenre ? "" : "collapsed" ;
+                const genrecontent = theTemplateGenre({ 'CurChannelGenere': CurChannelGenere , 'CurChannelGenereChannelsData':channelcontent, "DisplayType" : visiblecmd , 'collapsedcmd':collapsedcmd});
+
+                ChannelListNode.innerHTML += genrecontent;
+            }
         }
     }
+
+    // Have each button change the color of the heading
+    document.querySelectorAll('.channel-change').forEach(button => {
+        button.onclick = function() { 
+            fnSelectChannel ( button.dataset.channelname );
+         }
+    });
 }
+
+
+function fnSelectChannel ( channelname )
+{
+    event.preventDefault() ;
+    lastChannelName = fnGetCurChannelName() ;
+    if ( lastChannelName === channelname  )
+        return ;
+
+    fnSetCurChannelName ( channelname) ;
+    fnLoadUserPage( ) ;
+}
+
+
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
     fnUpdateChannelList (null);
-
 
 
     // Connect to websocket
@@ -78,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // When channel list is updated for for some new channel added
     socket.on('Channel_List_Updated', data => {
-        fnUpdateChannelList (data);
+        fnUpdateChannelList (data );
 
     });
 });

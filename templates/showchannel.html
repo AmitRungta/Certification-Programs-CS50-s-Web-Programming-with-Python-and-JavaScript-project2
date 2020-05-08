@@ -1,0 +1,33 @@
+{% extends "layoutLoggedPages.html" %}
+
+
+
+{% block SubExtraStyle %}
+<style>
+  .LoginDataRow>div {
+    padding: 20px;
+    background-color: #eee;
+    border: solid gray;
+    box-shadow: blue;
+  }
+</style>
+{% endblock %}
+
+
+
+{% block SubBodyData %}
+<script>
+  // Set the current channel as empty.
+  fnSetLastAddedChannelName("")
+</script>
+
+
+<b>Welcome to '<div style="display: inline;" id="ChannelNameDisplay"></div>'</b>
+<script>
+  document.getElementById("ChannelNameDisplay").innerHTML = fnGetCurChannelName();
+</script>
+
+<p>channel data</p>
+
+<br>
+{% endblock %}

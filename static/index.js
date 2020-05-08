@@ -1,16 +1,56 @@
 const LoggedUserKey = 'LoggedUserName' ;
+const LoggedChannelKey = 'LoggedChannelName' ;
+const LastAddedChannelKey = 'LastAddedChannelName' ;
 
 
 function fnGetCurUserName ()
 {
     let LoggedUserName = "";
-    if (!localStorage.getItem(LoggedUserKey))
-        localStorage.setItem(LoggedUserKey, LoggedUserName);
-    else 
+    if (localStorage.getItem(LoggedUserKey))
         LoggedUserName = localStorage.getItem(LoggedUserKey );
 
     LoggedUserName = LoggedUserName.trim() ;
     return LoggedUserName ;
+}
+
+function fnSetCurUserName ( LoggedUserName = "")
+{
+    LoggedUserName = LoggedUserName.trim() ;
+    localStorage.setItem(LoggedUserKey, LoggedUserName);
+}
+
+
+function fnGetCurChannelName ()
+{
+    let LoggedChannelName = "";
+    if (localStorage.getItem(LoggedChannelKey))
+        LoggedChannelName = localStorage.getItem(LoggedChannelKey );
+
+    LoggedChannelName = LoggedChannelName.trim() ;
+    return LoggedChannelName ;
+}
+
+function fnSetCurChannelName ( LoggedChannelName = "")
+{
+    LoggedChannelName = LoggedChannelName.trim() ;
+    localStorage.setItem(LoggedChannelKey, LoggedChannelName);
+}
+
+
+function fnGetLastAddedChannelName ()
+{
+    let ChannelName = "";
+    if (localStorage.getItem(LastAddedChannelKey))
+        ChannelName = localStorage.getItem(LastAddedChannelKey );
+
+    ChannelName = ChannelName.trim() ;
+    return ChannelName ;
+}
+
+function fnSetLastAddedChannelName ( ChannelName = "")
+{
+    ChannelName = ChannelName.trim() ;
+    localStorage.setItem(LastAddedChannelKey, ChannelName);
 }
 
 
@@ -21,7 +61,14 @@ function fnLoadUserPage( )
     if ( LoggedUserName === "" )
         return false ;
 
-    window.open ( "/AddChannel" , "_top");
+    const LoggedChannelName = fnGetCurChannelName () ;
+    if ( LoggedChannelName === "" )
+    {
+        window.open ( "/AddChannel" , "_top");
+        return true ;
+    }
+
+    window.open ( "/ShowChannel" , "_top");
     return true ;
 }
 
@@ -39,7 +86,7 @@ function fnLogin(event)
         alert(`Username cannot be left empty!!!`);
         return false ;
     }         
-    localStorage.setItem(LoggedUserKey, LoggedUserName);
+    fnSetCurUserName(LoggedUserName);
     event.preventDefault()
     fnLoadUserPage( );
 }
@@ -48,7 +95,9 @@ function fnLogin(event)
 // Logout from current user.    
 function fnLogout(event)
 {
-    localStorage.setItem(LoggedUserKey, "");
+    fnSetCurUserName("");
+    fnSetCurChannelName("");
+    fnSetLastAddedChannelName("") ;
     window.open ( "/" , "_top");
     event.preventDefault()
 }
@@ -108,6 +157,8 @@ function fnAddChannel(event) {
                 ChannelNameNode.value ="" ;
             if ( ChannelGenreNode )
                 ChannelGenreNode.value ="" ;
+            
+            fnSetLastAddedChannelName(ChannelName) ;
         }
         else 
         {
