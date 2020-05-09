@@ -1,6 +1,7 @@
 // This function will show the list of channels.
 function fnUpdateChannelList ( ChannelList)
 {
+    let ChannelPresentCount = 0 
     let CurChannelName = fnGetCurChannelName() ;
     if ( "" === CurChannelName )
         CurChannelName = fnGetLastAddedChannelName() ;
@@ -102,6 +103,8 @@ function fnUpdateChannelList ( ChannelList)
 
                 ChannelListNode.innerHTML += genrecontent;
             }
+
+            ChannelPresentCount = ChannelDataList.length ;
         }
     }
 
@@ -111,6 +114,8 @@ function fnUpdateChannelList ( ChannelList)
             fnSelectChannel ( button.dataset.channelname );
          }
     });
+
+    return ChannelPresentCount ;
 }
 
 // Function to select the channel as current displayed channel. 
@@ -185,10 +190,10 @@ function fnSendNewPost ( event )
     if (null === PostMessageNode )
         return false;
 
-    PostMessageNode = PostMessageNodeNode.value;
-    PostMessageNode = PostMessageNode.trim();
-    if (PostMessageNode === "") {
-        UsrErrMsgNode.innerHTML = `Channel name cannot be left empty!!!`;
+    PostMessage = PostMessageNode.value;
+    PostMessage = PostMessage.trim();
+    if (PostMessage === "") {
+        UsrErrMsgNode.innerHTML = `Please specify a message to post first !!!`;
         UsrErrMsgNode.style.display = "block";
         return false;
     }
@@ -225,20 +230,14 @@ function fnSendNewPost ( event )
         }
     }
 
-    // AmitTempCode
-
-
-
     // Add data to send with request
     const data = new FormData();
-    data.append('ChannelName', ChannelName);
-    data.append('ChannelGenre', ChannelGenre);
+    data.append('UserName', fnGetCurUserName());
+    data.append('ChannelName', fnGetCurChannelName());
+    data.append('PostString', PostMessage );
 
     // Send request
     request.send(data);
-
-
-
 }
 
 
@@ -246,7 +245,14 @@ function fnSendNewPost ( event )
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    fnUpdateChannelList (null);
+    
+    if ( ChannelPresent = fnUpdateChannelList (null) < 1 )
+    {
+        if (location.pathname === '/ShowChannel' )
+        {
+            window.open ( "/AddChannel" , "_top");
+        }
+    }
     
     if (location.pathname === '/ShowChannel' )
     {

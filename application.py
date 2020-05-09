@@ -5,10 +5,12 @@ import jsons
 
 from flask import Flask, jsonify, render_template, request , redirect , url_for
 from flask_socketio import SocketIO, emit
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
+
 
 class UserData:
     """class to save user name and his registered channels. """
@@ -30,12 +32,14 @@ class UserData:
 
 class PostData:       
     """class to store individual post data. """
-    def __init__(self, ChannelName , UserName , PostDate , PostString,PostID):
+    LastPostID = 0 
+    def __init__(self, ChannelName , UserName , PostDate , PostString):
         self.ChannelName = ChannelName
         self.UserName = UserName
         self.PostDate = PostDate
         self.PostString = PostString
-        self.PostID = PostID
+        self.PostID = PostData.LastPostID + 1
+        PostData.LastPostID += 1
 
 
 class Channeldata:       
@@ -127,24 +131,27 @@ def ShowChannel():
 
 @app.route("/AddPost", methods = ['POST'])
 def AddPost():
-
-    # AmitTempCode
+    userName = request.form.get('UserName' , "")
+    if ( ( None == userName ) or (not(userName and userName.strip())) ) :
+        return jsonify({"success": False , "reason": "user name is empty"})
+    userName = userName.strip()
 
     channelName = request.form.get('ChannelName' , "")
     if ( ( None == channelName ) or (not(channelName and channelName.strip())) ) :
-        return jsonify({"success": False , "reason": "Channel name is empty"})
+        return jsonify({"success": False , "reason": "channel name is empty"})
     channelName = channelName.strip()
-    AlreadyPresent = any ( x for x in listOfChannels if x.ChannelName.lower() == channelName.lower())
-    if False == AlreadyPresent :
-        return jsonify({"success": False , "reason": "Channel with given name is not present"})
 
-    postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
+    channelPost = request.form.get('PostString' , "")
+    if ( ( None == channelPost ) or (not(channelPost and channelPost.strip())) ) :
+        return jsonify({"success": False , "reason": "post is empty"})
+    channelPost = channelPost.strip()
 
-    # AmitTempCode this is just for testing.
-    time.sleep(1)
+    newPostData = PostData ( channelName , userName , datetime.utcnow() , channelPost )
+    listOfPostData.append(newPostData)
 
 
-    return jsonify({"success": True , 'data':postlist })
+    # AmitTempCode emit the post here...
+    return jsonify({"success": True })
 
 
 
