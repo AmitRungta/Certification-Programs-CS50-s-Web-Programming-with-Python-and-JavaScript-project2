@@ -2,7 +2,7 @@
 function fnUpdateChannelList ( ChannelList)
 {
     let CurChannelName = fnGetCurChannelName() ;
-    if ( CurChannelName === "" )
+    if ( "" === CurChannelName )
         CurChannelName = fnGetLastAddedChannelName() ;
 
     if ( null == ChannelList )
@@ -113,7 +113,7 @@ function fnUpdateChannelList ( ChannelList)
     });
 }
 
-
+// Function to select the channel as current displayed channel. 
 function fnSelectChannel ( channelname )
 {
     event.preventDefault() ;
@@ -127,11 +127,52 @@ function fnSelectChannel ( channelname )
 
 
 
+// This function will get all the content of the desired channel.
+function fnGetChannelContent(CurChannelName) {
+    if ("" === CurChannelName)
+        CurChannelName = fnGetCurChannelName();
+
+    if ("" === CurChannelName)
+        return false;
+
+    // Fetch the content of this channel
+    openModal();
+    try {
+        const request = new XMLHttpRequest();
+        request.open('POST', '/ShowChannel');
+        request.onload = () => {
+            closeModal();
+            if (200 == request.status) {
+                // Extract JSON data from request
+                const data = JSON.parse(request.responseText);
+
+                // Update the posts div
+                if (data.success) {
+                    data.data.forEach(fnAddPost);
+                }
+            }
+        };
+
+        // Add the channel name in the request.
+        const data = new FormData();
+        data.append('ChannelName', CurChannelName);
+
+        // Send request.
+        request.send(data);
+    } catch (error) {
+        closeModal();
+    }
+}
+
+
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
     fnUpdateChannelList (null);
-
+    
+    if (location.pathname === '/ShowChannel' )
+        fnGetChannelContent("")
 
     // Connect to websocket
     let socketlocation = location.protocol + '//' + document.domain + ':' + location.port  + '/ChannelList' ;

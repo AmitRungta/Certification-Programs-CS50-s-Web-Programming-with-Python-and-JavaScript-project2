@@ -114,66 +114,12 @@ def ShowChannel():
         return jsonify({"success": False , "reason": "Channel with given name is not present"})
 
     postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
+
+    # AmitTempCode this is just for testing.
+    time.sleep(5)
+
+
     return jsonify({"success": True , 'data':postlist })
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# AmitTempCode TO delete here....
-votes = {"yes": 0, "no": 0, "maybe": 0}
-
-@app.route("/postpage")
-def postpage():
-    return render_template("UserPost.html")
-
-
-@socketio.on("submit vote")
-def vote(data):
-    if data:
-        selection = data["selection"]
-        votes[selection] += 1
-        emit("vote totals", votes, broadcast=True)
-
-
-
-
-@app.route("/posts", methods=["POST"])
-def posts():
-
-    # Get start and end point for posts to generate.
-    start = int(request.form.get("start") or 0)
-    end = int(request.form.get("end") or (start + 9))
-
-    # Generate list of posts.
-    data = []
-    for i in range(start, end + 1):
-        data.append(f"Post #{i}")
-
-    # Artificially delay speed of response.
-    time.sleep(1)
-
-    # Return list of posts.
-    return jsonify(data)
