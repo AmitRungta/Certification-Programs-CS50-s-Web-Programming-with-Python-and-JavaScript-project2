@@ -2,16 +2,6 @@
 
 
 
-{% block SubExtraStyle %}
-<style>
-  .LoginDataRow>div {
-    padding: 20px;
-    background-color: #eee;
-    border: solid gray;
-    box-shadow: blue;
-  }
-</style>
-{% endblock %}
 
 
 
@@ -27,7 +17,22 @@
   document.getElementById("ChannelNameDisplay").innerHTML = fnGetCurChannelName();
 </script>
 
-<p>channel data</p>
+<div class="container"> 
+  <div  class="LoginDataRow">
+    <div class="mx-auto" >
+        <form id="ChannelPostForm">
+          <div class="form-group">
+            <textarea id="inputPost" autofocus class="form-control" spellcheck="true" placeholder="Write a new post here..."></textarea>
+          </div>
+
+          <button class="btn btn-outline-primary btn-sm" onclick="fnSendNewPost(event)" >Post message ...</button>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
 
 <br>
 {% endblock %}

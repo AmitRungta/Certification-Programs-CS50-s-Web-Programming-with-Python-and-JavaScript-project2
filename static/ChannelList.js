@@ -165,6 +165,83 @@ function fnGetChannelContent(CurChannelName) {
 }
 
 
+function fnAddPost ( content )
+{
+    // AmitTempCode add the post content here...
+
+
+}
+
+
+
+function fnSendNewPost ( event )
+{
+    event.preventDefault()
+    
+    let UsrErrMsgNode = document.querySelector('#UserErrMsg') ; 
+    UsrErrMsgNode.style.display = "none";
+
+    PostMessageNode = document.querySelector('#inputPost');
+    if (null === PostMessageNode )
+        return false;
+
+    PostMessageNode = PostMessageNodeNode.value;
+    PostMessageNode = PostMessageNode.trim();
+    if (PostMessageNode === "") {
+        UsrErrMsgNode.innerHTML = `Channel name cannot be left empty!!!`;
+        UsrErrMsgNode.style.display = "block";
+        return false;
+    }
+
+    const request = new XMLHttpRequest();
+    request.open('POST', '/AddPost');
+    
+    // Callback function for when request completes
+    request.onload = () => {
+
+        // Extract JSON data from request
+        const data = JSON.parse(request.responseText);
+        let UsrErrMsgNode = document.querySelector('#UserErrMsg') ; 
+        PostMessageNode = document.querySelector('#inputPost');
+
+        // Update the result div
+        if (data.success) 
+        {
+            if ( UsrErrMsgNode)
+                UsrErrMsgNode.innerHTML = "";
+            if ( PostMessageNode )
+            PostMessageNode.value ="" ;
+        }
+        else 
+        {
+            if ( UsrErrMsgNode)
+            {
+                if ( data.reason )
+                    UsrErrMsgNode.innerHTML = data.reason ;
+                else 
+                    UsrErrMsgNode.innerHTML = "Unknowm reason" ;
+                UsrErrMsgNode.style.display = "block";
+            }
+        }
+    }
+
+    // AmitTempCode
+
+
+
+    // Add data to send with request
+    const data = new FormData();
+    data.append('ChannelName', ChannelName);
+    data.append('ChannelGenre', ChannelGenre);
+
+    // Send request
+    request.send(data);
+
+
+
+}
+
+
 
 
 
@@ -172,7 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fnUpdateChannelList (null);
     
     if (location.pathname === '/ShowChannel' )
-        fnGetChannelContent("")
+    {
+        fnGetChannelContent("") ;
+        expandTextarea('inputPost');
+    }
 
     // Connect to websocket
     let socketlocation = location.protocol + '//' + document.domain + ':' + location.port  + '/ChannelList' ;

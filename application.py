@@ -116,7 +116,32 @@ def ShowChannel():
     postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
 
     # AmitTempCode this is just for testing.
-    time.sleep(5)
+    time.sleep(1)
+
+
+    return jsonify({"success": True , 'data':postlist })
+
+
+
+
+
+@app.route("/AddPost", methods = ['POST'])
+def AddPost():
+
+    # AmitTempCode
+
+    channelName = request.form.get('ChannelName' , "")
+    if ( ( None == channelName ) or (not(channelName and channelName.strip())) ) :
+        return jsonify({"success": False , "reason": "Channel name is empty"})
+    channelName = channelName.strip()
+    AlreadyPresent = any ( x for x in listOfChannels if x.ChannelName.lower() == channelName.lower())
+    if False == AlreadyPresent :
+        return jsonify({"success": False , "reason": "Channel with given name is not present"})
+
+    postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
+
+    # AmitTempCode this is just for testing.
+    time.sleep(1)
 
 
     return jsonify({"success": True , 'data':postlist })
