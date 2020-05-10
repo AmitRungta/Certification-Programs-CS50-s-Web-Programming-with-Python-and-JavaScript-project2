@@ -66,11 +66,11 @@ function fnUpdateChannelList ( ChannelList)
 
             ChannelListNode.innerHTML = "<b>Channel List</b>";
 
-            var theTemplateScriptChannel = document.querySelector('#headingtemplateChannel').innerHTML ;
-            var theTemplateChannel = Handlebars.compile (theTemplateScriptChannel);
+            const theTemplateScriptChannel = document.querySelector('#headingtemplateChannel').innerHTML ;
+            const theTemplateChannel = Handlebars.compile (theTemplateScriptChannel);
 
-            var theTemplateScriptGenre = document.querySelector('#headingtemplateGenre').innerHTML ;
-            var theTemplateGenre = Handlebars.compile (theTemplateScriptGenre );
+            const theTemplateScriptGenre = document.querySelector('#headingtemplateGenre').innerHTML ;
+            const theTemplateGenre = Handlebars.compile (theTemplateScriptGenre );
 
 
             // Now lets generate the list of channels for each genre
@@ -153,7 +153,11 @@ function fnGetChannelContent(CurChannelName) {
 
                 // Update the posts div
                 if (data.success) {
-                    data.data.forEach(fnAddPost);
+                    postNode = document.querySelector('#posts') ;
+                    if ( postNode )
+                        postNode.innerHTML = "";
+                
+                    data.data.forEach(fnAddPost , true );
                 }
             }
         };
@@ -172,9 +176,16 @@ function fnGetChannelContent(CurChannelName) {
 
 function fnAddPost ( content )
 {
-    // AmitTempCode add the post content here...
+    const theTemplateScriptPost = document.querySelector('#templateChannelPost').innerHTML ;
+    const theTemplatePost = Handlebars.compile (theTemplateScriptPost);
 
+    postNode = document.querySelector('#posts') ;
+    if ( null === postNode )
+        return ;
 
+    // Create new post.
+    const post = theTemplatePost({'contents': content});
+    postNode.innerHTML += post;
 }
 
 

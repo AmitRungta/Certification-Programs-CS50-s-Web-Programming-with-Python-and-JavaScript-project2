@@ -33,8 +33,7 @@ class UserData:
 class PostData:       
     """class to store individual post data. """
     LastPostID = 0 
-    def __init__(self, ChannelName , UserName , PostDate , PostString):
-        self.ChannelName = ChannelName
+    def __init__(self, UserName , PostDate , PostString):
         self.UserName = UserName
         self.PostDate = PostDate
         self.PostString = PostString
@@ -50,7 +49,7 @@ class Channeldata:
 
 
 # list of posts.
-listOfPostData =[]
+listOfPostData ={}
 
 # list of channels.
 listOfChannels =[]
@@ -117,13 +116,9 @@ def ShowChannel():
     if False == AlreadyPresent :
         return jsonify({"success": False , "reason": "Channel with given name is not present"})
 
-    postlist = [x for x in listOfPostData if x.ChannelName.lower() == channelName.lower()]
-
-    # AmitTempCode this is just for testing.
-    time.sleep(1)
-
-
-    return jsonify({"success": True , 'data':postlist })
+    postlist = listOfPostData.get (channelName.lower() , [] )
+    jasonstring = jsons.dump ({"success": True , "data": postlist})
+    return jasonstring
 
 
 
@@ -146,11 +141,15 @@ def AddPost():
         return jsonify({"success": False , "reason": "post is empty"})
     channelPost = channelPost.strip()
 
-    newPostData = PostData ( channelName , userName , datetime.utcnow() , channelPost )
-    listOfPostData.append(newPostData)
+    if ( None == listOfPostData.get (channelName.lower()) ):
+        listOfPostData[channelName.lower()] = []
 
+    NewPostData = PostData ( userName , datetime.utcnow() , channelPost ) 
+    listOfPostData[channelName.lower()].append(NewPostData)
 
-    # AmitTempCode emit the post here...
+    #  now lets broadcast this new post to all the recipients.
+    emit("PostList_Updated", jsons.dump ({"success": True , "NewPost": NewPostData }), broadcast=True , namespace='/ChannelList' )
+
     return jsonify({"success": True })
 
 
