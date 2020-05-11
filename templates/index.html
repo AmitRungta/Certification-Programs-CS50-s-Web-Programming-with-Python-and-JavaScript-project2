@@ -31,11 +31,6 @@ Welcome to Flack...
 
 {% block BodyData %}
 
-<script>
-  // Check and load user page if required.
-  fnLoadUserPage()
-</script>
-
 
 <br>
 
@@ -44,14 +39,14 @@ Welcome to Flack...
     <div class="mx-auto" style="width: 80%; max-width: 600px;" >
       <h3 style="text-align: center;">Sign In.</h2>
         <p style="text-align: center;">Sign in using your account.</p>
-        <form id="LoginForm">
+        <form method="post" action="/login">
           <div class="form-group">
 
             <label>User Name</label>
-            <input type="text" autofocus class="form-control" placeholder="User Name" id="inputUserName">
+            <input type="text" autofocus class="form-control" placeholder="User Name" name="inputUserName">
           </div>
 
-          <button class="btn btn-primary" onclick="fnLogin(event)">Login</button>
+          <button type="submit" class="btn btn-primary" >Login</button>
         </form>
     </div>
   </div>

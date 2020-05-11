@@ -1,23 +1,12 @@
 {% extends "layoutLoggedPages.html" %}
 
 
-
-
-
 {% block SubBodyData %}
-
-<script>
-  // Set the current channel as empty.
-  fnSetCurChannelName("")
-</script>
-
-
-
 <div class="container"> 
   <div  class="LoginDataRow">
     <div class="mx-auto" style="width: 80%; max-width: 600px;"  >
       <h3 style="text-align: left;">Add New Channel.</h2>
-        <form id="ChannelForm">
+        <form id="AddChannelForm">
           <div class="form-group">
 
             <label>Channel Name</label>
@@ -27,11 +16,10 @@
             <input type="text" class="form-control" placeholder="Channel Genre" id="inputChannelGenre">
           </div>
 
-          <button class="btn btn-primary" onclick="fnAddChannel(event)">Add Channel</button>
+          <button type="submit" id="AddChannelBtn" class="btn btn-primary" >Add Channel</button>
         </form>
     </div>
   </div>
 </div>
-
 <br>
 {% endblock %}

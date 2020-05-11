@@ -3,6 +3,8 @@
 
 
 {% block SubExtraStyle %}
+
+
 <style>
   @keyframes hide {
       0% {
@@ -66,16 +68,9 @@
 
 
 {% block SubBodyData %}
-<script>
-  // Set the current channel as empty.
-  fnSetLastAddedChannelName("")
-</script>
 
 
-<b>Welcome to '<div style="display: inline;" id="ChannelNameDisplay"></div>'</b>
-<script>
-  document.getElementById("ChannelNameDisplay").innerHTML = fnGetCurChannelName();
-</script>
+<b>Welcome to channel: '{{channelname}}'</b>
 
 <div class="container"> 
   <div  class="LoginDataRow">
@@ -85,15 +80,16 @@
             <textarea id="inputPost" autofocus class="form-control" spellcheck="true" placeholder="Write a new post here..."></textarea>
           </div>
 
-          <button class="btn btn-outline-primary btn-sm" onclick="fnSendNewPost(event)" >Post message ...</button>
+          <button type="submit" id="PostMsg" class="btn btn-outline-primary btn-sm" >Post message ...</button>
         </form>
     </div>
   </div>
 </div>
 <br>
 
-<div id="posts">
+<div id="posts_list">
 </div>
+
 
 
 {% endblock %}

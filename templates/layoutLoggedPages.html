@@ -18,6 +18,7 @@
     box-shadow: blue;
   }
 </style>
+<link rel="stylesheet" href="{{ url_for('static', filename='stylesheet/chat_style.css') }}">
 
   {% block SubExtraStyle %}
   {% endblock %}
@@ -26,14 +27,17 @@
 {% block ExtraScript %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
-<script src="{{ url_for('static', filename='ChannelList.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/ChannelList.js') }}"></script>
+
+<!-- Custom SocketIO JS -->
+<script src="{{ url_for('static', filename='scripts/socket.js') }}"></script>
 
 <script id="headingtemplateChannel" type="text/x-handlebars-template">
   {% raw -%}
   <div id="collapse{{CurChannelGenere}}" class="collapse {{showdata}}" aria-labelledby="{{CurChannelGenere}}" data-parent="#ChannelDisplayList">
     <div class="card-body">
       {{#each values}}
-      <p><a href="" class="channel-change" data-channelname="{{this.ChannelName}}"> {{ this.ChannelName }}</a></p>
+      <p><a href="/ShowChannel/{{this.ChannelName}}" > {{ this.ChannelName }}</a></p>
       {{/each}}
     </div>
   </div>
@@ -70,18 +74,13 @@
 
 {% block NavigationBar %}
 <div class="NavigationBar">
-  <a href="" class="right" onclick="fnLogout(event)">Log Out</a>
+  <a href="{{ url_for('logout') }}" class="right" >Log Out</a>
   <a href="{{ url_for('AddChannel') }}" class="right" >Manage Channels</a>
 </div>
 {% endblock %}
 
 {% block heading %}
-<div style="display: inline;" id="UserName"></div>, Welcome to Flack !!!
-
-<script>
-  document.getElementById("UserName").innerHTML = fnGetCurUserName();
-</script>
-
+{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Guest{% endif %}, Welcome to Flack !!!
 {% endblock %}
 
 
@@ -97,7 +96,7 @@
     </div>
 
     <div class="col-md-9 col-sm-6 col-12">
-      <div class="alert alert-danger" role="alert" style="text-align: center;" id="UserErrMsg" style="display: none;">
+      <div class="alert alert-danger" role="alert" style="text-align: center;" id="UserErrMsg" >
       </div>
       <br>
 
@@ -107,5 +106,14 @@
     </div>
   </div>
 </div>
+
+<!-- Get username -->
+<span id="get-username" >{% if current_user.is_authenticated %}{{ current_user.username }}{% endif %}</span>
+
+<!-- Get ChannelName -->
+<span id="get-channelname" >{{ channelname }}</span>
+
+
+
 
 {% endblock %}
