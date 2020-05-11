@@ -1,77 +1,7 @@
 {% extends "layoutLoggedPages.html" %}
 
-
-
-{% block SubExtraStyle %}
-
-
-<style>
-  @keyframes hide {
-      0% {
-          opacity: 1;
-          height: 100%;
-          line-height: 100%;
-          padding: 20px;
-          margin-bottom: 10px;
-      }
-      75% {
-          opacity: 0;
-          height: 100%;
-          line-height: 100%;
-          padding: 20px;
-          margin-bottom: 10px;
-      }
-      100% {
-          opacity: 0;
-          height: 0px;
-          line-height: 0px;
-          padding: 0px;
-          margin-bottom: 0px;
-      }
-  }
-
-  .hide  {
-      float: right;
-  }
-
-  .post {
-      background-color: #77dd11;
-      padding: 20px;
-      margin-bottom: 10px;
-      animation-name: hide;
-      animation-duration: 2s;
-      animation-fill-mode: forwards;
-      animation-play-state: paused;
-  }
-
-  body {
-      padding-bottom: 50px;
-  }
-</style>
-{% endblock %}
-
-
-
-
-{% block SubExtraScript %}
-<script id="templateChannelPost" type="text/x-handlebars-template">
-  <div class="post">
-    {% raw -%}
-        {{ contents.PostString }}
-    {%- endraw %}
-    <button class="hide">Hide</button>
-</div>
-</script>
-{% endblock %}
-
-
-
-
 {% block SubBodyData %}
-
-
 <b>Welcome to channel: '{{channelname}}'</b>
-
 <div class="container"> 
   <div  class="LoginDataRow">
     <div class="mx-auto" >
@@ -87,9 +17,6 @@
 </div>
 <br>
 
-<div id="posts_list">
+<div id="display-message-section">
 </div>
-
-
-
 {% endblock %}

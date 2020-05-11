@@ -1,4 +1,6 @@
+//------------------------------------------------------------------
 // This function will show the list of channels.
+//
 function fnUpdateChannelList ( ChannelList)
 {
     let ChannelPresentCount = 0 
@@ -111,15 +113,17 @@ function fnUpdateChannelList ( ChannelList)
 
 
 
-
+//------------------------------------------------------------------
+// Adds the post from the list..
+//
 function fnAddPostList ( PostList )
 {
     if ( PostList.success )
     {
         bClearOldData = true ;
-        for ( postindex in PostList.postlist )
+        for ( postindex = PostList.postlist.length -1 ; postindex >= 0 ; postindex-- )
         {
-            fnAddPost (PostList.postlist[postindex] , bClearOldData ) ;
+            fnAddPost (PostList.postlist[postindex] , bClearOldData , false ) ;
             bClearOldData = false ;
         }
     }
@@ -128,23 +132,93 @@ function fnAddPostList ( PostList )
 
 
 
-
-
-function fnAddPost ( content , bClearOldData  = false )
+//------------------------------------------------------------------
+// Adds a single post in the display 
+//
+function fnDeletePost ( PostDeleted )
 {
-    const theTemplateScriptPost = document.querySelector('#templateChannelPost').innerHTML ;
-    const theTemplatePost = Handlebars.compile (theTemplateScriptPost);
+    itemp = 10 ;
+}
 
-    postNode = document.querySelector('#posts_list') ;
+
+
+function fnGetLocalTimeStringFromUTC( PostDateTime)
+{
+    CurDate = new Date ( PostDateTime ) ;
+    return CurDate.getFullYear() + '/' + 
+            (CurDate.getMonth() + 1) + '/' + 
+            CurDate.getDate() + ' ' + 
+            CurDate.getHours() + ':' + 
+            CurDate.getMinutes()+ ':' + 
+            CurDate.getSeconds();
+
+}
+
+//------------------------------------------------------------------
+// Adds a single post in the display 
+//
+function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
+{
+    postNode = document.querySelector('#display-message-section') ;
     if ( null === postNode )
         return ;
 
     if ( bClearOldData )
         postNode.innerHTML = "";
 
-    // Create new post.
-    const post = theTemplatePost({'contents': content});
-    postNode.innerHTML += post;
+    // Retrieve username
+    const username = document.querySelector('#get-username').innerHTML;
+
+    // Retrieve current channel name for the page
+    const CurChannelName = document.querySelector('#get-channelname').innerHTML;
+
+
+    const p = document.createElement('p');
+    const span_username = document.createElement('span');
+    const span_timestamp = document.createElement('span');
+    const span_deletemsg = document.createElement('button');
+    const br = document.createElement('br')
+
+    // Display user's own message
+    if (content.UserName == username) {
+        p.setAttribute("class", "my-msg");
+
+        // Username
+        span_username.setAttribute("class", "my-username");
+
+        // Timestamp
+        span_timestamp.setAttribute("class", "timestamp");
+
+        // Delete Self messages.
+        span_deletemsg.setAttribute("class", "btn btn-outline-danger btn-sm delete-button ");
+        span_deletemsg.innerHTML = "Delete" ;
+    }
+    // Display other users' messages
+    else {
+        p.setAttribute("class", "others-msg");
+
+        // Username
+        span_username.setAttribute("class", "other-username");
+
+        // Timestamp
+        span_timestamp.setAttribute("class", "timestamp");
+    }
+
+    span_username.innerText = content.UserName;
+    span_timestamp.innerText = fnGetLocalTimeStringFromUTC(content.PostDate);
+
+    // HTML to append
+    p.innerHTML += span_username.outerHTML ;
+    if ( span_deletemsg.innerText.length )
+        p.innerHTML += span_deletemsg.outerHTML ;
+    p.innerHTML += span_timestamp.outerHTML ;
+    p.innerHTML +=  br.outerHTML + content.PostString 
+
+    //Append
+    if ( bAddInEnd )
+        postNode.append(p);
+    else
+        postNode.insertBefore(p,postNode.firstChild);
 }
 
 
@@ -152,6 +226,7 @@ function fnAddPost ( content , bClearOldData  = false )
 
 
 
+//------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
 
     // When channel list is updated for for some new channel added
@@ -159,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     expandTextarea('inputPost');
 
+    //------------------------------------------------------------------
     // Make 'enter' key submit message
     let PostMessageNode = document.getElementById("inputPost");
     if (PostMessageNode) {
@@ -169,12 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-
-
-
-
-    
+  
     
 
 });

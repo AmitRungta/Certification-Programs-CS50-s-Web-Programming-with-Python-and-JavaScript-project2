@@ -22,10 +22,16 @@ login.init_app(app)
 
 socketio = SocketIO(app)
 
+MAX_ALLOWED_POST_PER_CHANNEL = 10
+MAX_POST_TO_SEND_PER_REUEST = 10
 
+
+
+# --------------------------------------------------------
 # list of posts.
 listOfPostData ={}
 
+# --------------------------------------------------------
 # list of some predefined channels channels.
 listOfChannels =[ Channeldata( 'Computers' , 'Education') , \
                     Channeldata( 'Economics' , 'Education') ,\
@@ -45,13 +51,16 @@ listOfChannels =[ Channeldata( 'Computers' , 'Education') , \
 
 
 
+# --------------------------------------------------------
+#
 @login.user_loader
 def load_user(username):
     return get_user(username) 
 
 
 
-
+# --------------------------------------------------------
+#
 @app.route("/")
 @app.route("/login", methods=['GET', 'POST'])
 def index():
@@ -71,7 +80,8 @@ def index():
 
 
 
-
+# --------------------------------------------------------
+#
 @app.route("/logout")
 # @login_required
 def logout():
@@ -81,18 +91,26 @@ def logout():
     return redirect(url_for('index'))
 
 
+
+# --------------------------------------------------------
+#
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
     return render_template('404.html'), 404
 
 
+
+# --------------------------------------------------------
+#
 @app.route("/GetChannelList", methods = ['POST'])
 def GetChannelList():
     return jsons.dump ({"success": True , "data": listOfChannels})
 
 
 
+# --------------------------------------------------------
+#
 @app.route("/AddChannel")
 @login_required
 def AddChannel():
@@ -102,8 +120,8 @@ def AddChannel():
 
 
 
-
-
+# --------------------------------------------------------
+#
 @socketio.on('add_channel' )
 def handle_add_channel_event(data):
     """Broadcast messages"""
@@ -135,23 +153,20 @@ def handle_add_channel_event(data):
 
 
 
-
-
-
+# --------------------------------------------------------
+#
 @app.route("/ShowChannel/<channel_name>", methods = ['GET', 'POST'])
 @login_required
 def ShowChannel(channel_name=""):
 
-    # postlist = []
     channel_name = channel_name.strip()
-    # AlreadyPresent = any ( x for x in listOfChannels if x.ChannelName.lower() == channel_name.lower())
-    # if AlreadyPresent :
-    #     postlist = listOfPostData.get (channel_name.lower() , [] )
-
     # if the user have come here directly then move back to index page.
     return render_template("showchannel.html", username=current_user.username, channelname=channel_name)
 
 
+
+# --------------------------------------------------------
+#
 @socketio.on('get_channel_post')
 def handle_get_channel_post_event(data):
     """get the list of post for this channel"""
@@ -169,8 +184,8 @@ def handle_get_channel_post_event(data):
 
 
 
-
-
+# --------------------------------------------------------
+#
 @socketio.on('join_channel')
 def handle_join_channel_event(data):
     """User joins a channel"""
@@ -179,19 +194,20 @@ def handle_join_channel_event(data):
     join_room(channel.lower())
 
 
+
+# --------------------------------------------------------
+#
 @socketio.on('leave_channel')
 def handle_leave_channel_event(data):
     """User leaves a channel"""
 
     channel = data['channel']
     leave_room(channel.lower())
-        
 
 
 
-
-
-
+# --------------------------------------------------------
+#
 @socketio.on('send_message' )
 def handle_send_message_event(data):
     """Broadcast messages"""
@@ -203,11 +219,18 @@ def handle_send_message_event(data):
     if ( None == listOfPostData.get (channelName.lower()) ):
         listOfPostData[channelName.lower()] = []
 
-    NewPostData = PostData ( userName , datetime.utcnow() , channelPost ) 
-    listOfPostData[channelName.lower()].append(NewPostData)
+    NewPostData = PostData ( userName , datetime.utcnow() , channelPost )
+    postlist = listOfPostData[channelName.lower()] 
+    postlist.insert(0,NewPostData)
+
+    postDeleted = []
+    while ( len ( postlist ) > MAX_ALLOWED_POST_PER_CHANNEL ):
+        postDeleted.append ( postlist[postlist.count()-1].PostID )
+        postlist.pop()
+
 
     #  now lets broadcast this new post to all the recipients.
-    emit("PostList_Updated", jsons.dump ({"success": True , "NewPost": NewPostData }), broadcast=True  , room=channelName.lower()  )
+    emit("PostList_Updated", jsons.dump ({"success": True , "NewPost": NewPostData , "PostDeleted" : postDeleted }), broadcast=True  , room=channelName.lower()  )
     return jsons.dump({"success": True })
 
 

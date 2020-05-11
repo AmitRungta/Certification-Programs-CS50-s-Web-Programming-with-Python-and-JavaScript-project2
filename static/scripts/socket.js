@@ -6,13 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Retrieve username
     const username = document.querySelector('#get-username').innerHTML;
+
+    // Retrieve current channel name for the page
     const CurChannelName = document.querySelector('#get-channelname').innerHTML;
 
+    // Retrieve user error message node.
     let UsrErrMsgNode = document.querySelector('#UserErrMsg') ;
     if ( "" == UsrErrMsgNode.innerHTML.trim() ) 
         UsrErrMsgNode.style.display = "none";
 
 
+    // Processing for add a new channel form.
     let AddChannelFormNode = document.getElementById('AddChannelForm');
     if (AddChannelFormNode) {
         AddChannelFormNode.onsubmit = function (e) {
@@ -49,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
+    // function for processing the response of add a new channel. In this response we get the new list of channel.
     function fnAddChannelResponse ( data )
     {
         let UsrErrMsgNode = document.querySelector('#UserErrMsg');
@@ -72,15 +76,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    //------------------------------------------------------------------
     // When channel list is updated for for some new channel added
     socket.on('Channel_List_Updated', data => {
         fnUpdateChannelList(data);
     });
 
+    //------------------------------------------------------------------
     // When new post is added in the channels
     socket.on('PostList_Updated', data => {
         if ( data.success )
-            fnAddPost(data.NewPost , false );
+        {
+            if ( "NewPost" in data)
+                fnAddPost(data.NewPost , false  , false );
+
+            if ( "PostDeleted" in data)
+                fnDeletePost(data.PostDeleted );
+
+        }
     });
 
 
@@ -117,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 PostMessageNode.focus();
             }
 
-            let postNode = document.querySelector('#posts_list') ;
+            let postNode = document.querySelector('#display-message-section') ;
             if ( postNode )
             {
                 // get the list of messages for this channel.
@@ -126,16 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     channelname: CurChannelName,
                 }, callback = fnAddPostList)
             }
-
-
-
         }
-
-
-
-
     });
 
+    //------------------------------------------------------------------
+    // When leaving the page lets leave this channel for new messages. 
     window.onbeforeunload = function () {
         fnLeaveRoom(username, CurChannelName);
     };
