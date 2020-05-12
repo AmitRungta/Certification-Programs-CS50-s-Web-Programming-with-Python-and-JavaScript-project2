@@ -1,3 +1,24 @@
+function fnGetCurChannelName ( bCanUseLocalStorage )
+{
+    // Retrieve current channel name for the page
+    let CurChannelName = "" ;
+    if ( document.querySelector('#get-channelname') ) 
+        CurChannelName = document.querySelector('#get-channelname').innerHTML;
+
+
+    // AmitTempCode
+
+    return CurChannelName ;
+}
+
+function fnSetCurChannelNameInLocalStorage ( channelName )
+{
+    // AmitTempCode
+
+
+}
+
+
 //------------------------------------------------------------------
 // This function will show the list of channels.
 //
@@ -27,6 +48,7 @@ function fnUpdateChannelList ( ChannelList)
         }
     }
 
+    const CurChannelName = fnGetCurChannelName ( false ) ;
     let ChannelListNode = document.querySelector('#ChannelDisplayList');
     if (ChannelListNode) {
         if (null == ChannelList || null == ChannelList.data || ChannelList.data.length < 1 ) {
@@ -84,14 +106,14 @@ function fnUpdateChannelList ( ChannelList)
                 let len = CurGenreChannelList.length ;
                 let selectedgenre = ( 0 == loopindex ) ? true : false ;
                 // AmitTempCode 
-                // if ( CurChannelName != "" )
-                // {
-                //     let SelChannelGenre = CurGenreChannelList.filter(item => {
-                //         let k = item.ChannelName;
-                //         return ( k === CurChannelName ) ? true : false ;
-                //     });
-                //     selectedgenre =  SelChannelGenre.length > 0 ;
-                // }
+                if ( CurChannelName != "" )
+                {
+                    let SelChannelGenre = CurGenreChannelList.filter(item => {
+                        let k = item.ChannelName;
+                        return ( k === CurChannelName ) ? true : false ;
+                    });
+                    selectedgenre =  SelChannelGenre.length > 0 ;
+                }
                 
 
                 // WE have out current genre and list of channels for this genre...
@@ -116,13 +138,12 @@ function fnUpdateChannelList ( ChannelList)
 //------------------------------------------------------------------
 // Adds the post from the list..
 //
-function fnUpdatePostList ( PostList , bClearOldData = true )
+function fnUpdatePostList ( PostList )
 {
     if (PostList.success) {
         if ("PostAdded" in PostList) {
             for (postindex = PostList.PostAdded.length - 1; postindex >= 0; postindex--) {
-                fnAddPost(PostList.PostAdded[postindex], bClearOldData, false);
-                bClearOldData = false;
+                fnAddPost(PostList.PostAdded[postindex]);
             }
         }
 
@@ -132,8 +153,18 @@ function fnUpdatePostList ( PostList , bClearOldData = true )
             }
         }
 
-        
+        //close the wait progress..
+        closeModal() ;
+
+        // as we have updated the list hence lets check if we need to fetch more data or not.
+        fnCheckAndFetchMoreMessages() ; 
     }
+    else
+    {
+        //close the wait progress..
+        closeModal() ;
+    }
+
 }
 
 
@@ -158,20 +189,17 @@ function fnGetLocalTimeStringFromUTC( PostDateTime)
 //------------------------------------------------------------------
 // Adds a single post in the display 
 //
-function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
+function fnAddPost ( content )
 {
     postNode = document.querySelector('#display-message-section') ;
     if ( null === postNode )
         return ;
 
-    if ( bClearOldData )
-        postNode.innerHTML = "";
-
     // Retrieve username
     const username = document.querySelector('#get-username').innerHTML;
 
     // Retrieve current channel name for the page
-    const CurChannelName = document.querySelector('#get-channelname').innerHTML;
+    const CurChannelName = fnGetCurChannelName(false);
 
     const p = document.createElement('p');
     const span_username = document.createElement('span');
@@ -207,6 +235,7 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
         span_timestamp.setAttribute("class", "timestamp");
     }
 
+    p.setAttribute("PostID", content.PostID);
     p.setAttribute("id", "PostID-"+content.PostID);
     span_username.innerText = content.UserName;
     span_timestamp.innerText = fnGetLocalTimeStringFromUTC(content.PostDate);
@@ -219,10 +248,20 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
     p.innerHTML +=  br.outerHTML + content.PostString 
 
     //Append
-    if ( bAddInEnd )
-        postNode.append(p);
-    else
-        postNode.insertBefore(p,postNode.firstChild);
+    AppendBeforeNode = null ;
+    if ( postNode.lastChild )
+    {
+        CurrNode = postNode.lastChild;
+        while (CurrNode &&
+            CurrNode.innerText.length > 0 &&
+            CurrNode.hasAttribute("PostID") &&
+            (parseInt(CurrNode.getAttribute("PostID")) < content.PostID)) {
+            AppendBeforeNode = CurrNode;
+            CurrNode = CurrNode.previousSibling;
+        }
+    }
+
+    postNode.insertBefore(p,AppendBeforeNode);
 }
 
 
@@ -244,6 +283,7 @@ function fnDeletePost ( PostIDDeleted )
     postNode.style.animationPlayState = 'running';
     postNode.addEventListener('animationend', () =>  {
         postNode.remove();
+        fnCheckAndFetchMoreMessages();
     });
 }
 

@@ -23,7 +23,7 @@ login.init_app(app)
 socketio = SocketIO(app)
 
 # AmitTempCode
-MAX_ALLOWED_POST_PER_CHANNEL = 5
+MAX_ALLOWED_POST_PER_CHANNEL = 100
 MAX_POST_TO_SEND_PER_REUEST = 5
 
 
@@ -174,11 +174,21 @@ def handle_get_channel_post_event(data):
 
     userName = data['username']
     channelName = data['channelname']
+    LastPostID = data.get('LastPostID',-1)
 
     if ( None == listOfPostData.get (channelName.lower()) ):
         listOfPostData[channelName.lower()] = []
+    ChannelPostList = listOfPostData[channelName.lower()]
     
-    PostAdded = listOfPostData[channelName.lower()]
+    startindex = 0
+    if ( LastPostID > 0 ):
+        ExistingMsgIndex = next ( ( i for i, msg in enumerate ( ChannelPostList ) if msg.PostID == LastPostID ) , -1 )
+        if ( ExistingMsgIndex >= 0 ) :
+            startindex = ExistingMsgIndex + 1       # Get the next post data 
+
+    # Get the last index
+    endindex = startindex + MAX_POST_TO_SEND_PER_REUEST 
+    PostAdded = ChannelPostList[startindex:endindex]
 
     #  now lets broadcast this new post to all the recipients.
     return jsons.dump ({"success": True , "userName":userName , "channelName":channelName, "PostAdded": PostAdded })
