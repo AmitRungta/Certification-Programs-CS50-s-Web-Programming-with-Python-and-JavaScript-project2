@@ -1,14 +1,19 @@
+var socket = null ;
+// Retrieve username
+var username = "";
+var CurChannelName = "";
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // Connect to websocket
     let socketlocation = location.protocol + '//' + document.domain + ':' + location.port   ;
-    var socket = io.connect(socketlocation);
+    socket = io.connect(socketlocation);
 
     // Retrieve username
-    const username = document.querySelector('#get-username').innerHTML;
+    username = document.querySelector('#get-username').innerHTML;
 
     // Retrieve current channel name for the page
-    const CurChannelName = document.querySelector('#get-channelname').innerHTML;
+    CurChannelName = document.querySelector('#get-channelname').innerHTML;
 
     // Retrieve user error message node.
     let UsrErrMsgNode = document.querySelector('#UserErrMsg') ;
@@ -85,20 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
     //------------------------------------------------------------------
     // When new post is added in the channels
     socket.on('PostList_Updated', data => {
-        if ( data.success )
-        {
-            if ( "NewPost" in data)
-                fnAddPost(data.NewPost , false  , false );
-
-            if ( "PostDeleted" in data)
-                fnDeletePost(data.PostDeleted );
-
-        }
+        fnUpdatePostList ( data , false ) ;
     });
 
 
     socket.on('connect', function () {
-        fnJoinRoom(username, CurChannelName);
+        fnJoinRoom();
 
         let ChannelPostFormNode = document.getElementById('ChannelPostForm');
         if (ChannelPostFormNode) {
@@ -137,21 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 socket.emit('get_channel_post', {
                     username: username,
                     channelname: CurChannelName,
-                }, callback = fnAddPostList)
+                }, callback = fnUpdatePostList)
             }
         }
     });
 
     //------------------------------------------------------------------
     // When leaving the page lets leave this channel for new messages. 
-    window.onbeforeunload = function () {
-        fnLeaveRoom(username, CurChannelName);
-    };
+    window.addEventListener ("beforeunload"  , () => {
+        fnLeaveRoom();
+    }) ;
 
-
+    //------------------------------------------------------------------
+    // When page is unloaded close the socket. 
+    window.addEventListener ("unload"  , () => {
+        if ( null != socket )
+            socket.close() ;
+        socket = null ;
+    }) ;
 
     // Trigger 'join' event
-    function fnJoinRoom (username, CurChannelName)
+    function fnJoinRoom ()
     {
         socket.emit('join_channel', {
             username: username,
@@ -161,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
     // Trigger 'leave' event if user was previously on a room
-    function fnLeaveRoom (username, CurChannelName)
+    function fnLeaveRoom ()
     {
         socket.emit('leave_channel', {
             username: username,
@@ -170,5 +173,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
 });
+
+
+// Trigger 'delete_post' event
+function fnDeletePostMsg ( buttonelement )
+{
+    if ( null == socket || null == buttonelement )
+        return ;
+    PostID = parseInt ( buttonelement.dataset.postid) ;
+
+    socket.emit('delete_message', {
+        'username': username,
+        'channel': CurChannelName,
+        'PostDeleted':PostID
+    });
+}
+
 
 

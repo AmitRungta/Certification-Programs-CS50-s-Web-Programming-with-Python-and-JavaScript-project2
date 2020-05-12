@@ -116,43 +116,44 @@ function fnUpdateChannelList ( ChannelList)
 //------------------------------------------------------------------
 // Adds the post from the list..
 //
-function fnAddPostList ( PostList )
+function fnUpdatePostList ( PostList , bClearOldData = true )
 {
-    if ( PostList.success )
-    {
-        bClearOldData = true ;
-        for ( postindex = PostList.postlist.length -1 ; postindex >= 0 ; postindex-- )
-        {
-            fnAddPost (PostList.postlist[postindex] , bClearOldData , false ) ;
-            bClearOldData = false ;
+    if (PostList.success) {
+        if ("PostAdded" in PostList) {
+            for (postindex = PostList.PostAdded.length - 1; postindex >= 0; postindex--) {
+                fnAddPost(PostList.PostAdded[postindex], bClearOldData, false);
+                bClearOldData = false;
+            }
         }
+
+        if ("PostDeleted" in PostList) {
+            for (postindex = PostList.PostDeleted.length - 1; postindex >= 0; postindex--) {
+                fnDeletePost(PostList.PostDeleted[postindex]);
+            }
+        }
+
+        
     }
 }
 
 
 
 
-//------------------------------------------------------------------
-// Adds a single post in the display 
-//
-function fnDeletePost ( PostDeleted )
-{
-    itemp = 10 ;
-}
-
 
 
 function fnGetLocalTimeStringFromUTC( PostDateTime)
 {
-    CurDate = new Date ( PostDateTime ) ;
-    return CurDate.getFullYear() + '/' + 
-            (CurDate.getMonth() + 1) + '/' + 
-            CurDate.getDate() + ' ' + 
-            CurDate.getHours() + ':' + 
-            CurDate.getMinutes()+ ':' + 
-            CurDate.getSeconds();
-
+    CurDate = new Date(PostDateTime);
+    return String(CurDate.getFullYear()).padStart(4, '0') + '/' +
+        String((CurDate.getMonth() + 1)).padStart(2, '0') + '/' +
+        String(CurDate.getDate()).padStart(2, '0') + ' ' +
+        String(CurDate.getHours()).padStart(2, '0') + ':' +
+        String(CurDate.getMinutes()).padStart(2, '0') + ':' +
+        String(CurDate.getSeconds()).padStart(2, '0');
 }
+
+
+
 
 //------------------------------------------------------------------
 // Adds a single post in the display 
@@ -172,7 +173,6 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
     // Retrieve current channel name for the page
     const CurChannelName = document.querySelector('#get-channelname').innerHTML;
 
-
     const p = document.createElement('p');
     const span_username = document.createElement('span');
     const span_timestamp = document.createElement('span');
@@ -191,6 +191,9 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
 
         // Delete Self messages.
         span_deletemsg.setAttribute("class", "btn btn-outline-danger btn-sm delete-button ");
+        span_deletemsg.setAttribute("data-postid", content.PostID);
+        span_deletemsg.setAttribute("onclick", "fnDeletePostMsg( this )");
+        
         span_deletemsg.innerHTML = "Delete" ;
     }
     // Display other users' messages
@@ -204,6 +207,7 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
         span_timestamp.setAttribute("class", "timestamp");
     }
 
+    p.setAttribute("id", "PostID-"+content.PostID);
     span_username.innerText = content.UserName;
     span_timestamp.innerText = fnGetLocalTimeStringFromUTC(content.PostDate);
 
@@ -224,6 +228,24 @@ function fnAddPost ( content , bClearOldData  = false , bAddInEnd = false )
 
 
 
+
+//------------------------------------------------------------------
+// deletes a single post in the display list 
+//
+function fnDeletePost ( PostIDDeleted )
+{
+    postNode = document.querySelector('#PostID-'+PostIDDeleted) ;
+    if ( null == postNode )
+        return ;
+
+    postNode.style.animationName = 'hide';
+    postNode.style.animationDuration = '1s' ;
+    postNode.style.animationFillMode = 'forwards';
+    postNode.style.animationPlayState = 'running';
+    postNode.addEventListener('animationend', () =>  {
+        postNode.remove();
+    });
+}
 
 
 //------------------------------------------------------------------

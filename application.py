@@ -22,8 +22,9 @@ login.init_app(app)
 
 socketio = SocketIO(app)
 
-MAX_ALLOWED_POST_PER_CHANNEL = 10
-MAX_POST_TO_SEND_PER_REUEST = 10
+# AmitTempCode
+MAX_ALLOWED_POST_PER_CHANNEL = 5
+MAX_POST_TO_SEND_PER_REUEST = 5
 
 
 
@@ -177,10 +178,10 @@ def handle_get_channel_post_event(data):
     if ( None == listOfPostData.get (channelName.lower()) ):
         listOfPostData[channelName.lower()] = []
     
-    postlist = listOfPostData[channelName.lower()]
+    PostAdded = listOfPostData[channelName.lower()]
 
     #  now lets broadcast this new post to all the recipients.
-    return jsons.dump ({"success": True , "userName":userName , "channelName":channelName, "postlist": postlist })
+    return jsons.dump ({"success": True , "userName":userName , "channelName":channelName, "PostAdded": PostAdded })
 
 
 
@@ -220,17 +221,52 @@ def handle_send_message_event(data):
         listOfPostData[channelName.lower()] = []
 
     NewPostData = PostData ( userName , datetime.utcnow() , channelPost )
-    postlist = listOfPostData[channelName.lower()] 
-    postlist.insert(0,NewPostData)
+    PostAdded = listOfPostData[channelName.lower()] 
+    PostAdded.insert(0,NewPostData)
 
     postDeleted = []
-    while ( len ( postlist ) > MAX_ALLOWED_POST_PER_CHANNEL ):
-        postDeleted.append ( postlist[postlist.count()-1].PostID )
-        postlist.pop()
+    while ( len ( PostAdded ) > MAX_ALLOWED_POST_PER_CHANNEL ):
+        postDeleted.append ( PostAdded[len ( PostAdded )-1].PostID )
+        PostAdded.pop()
 
+    PostAdded = []
+    PostAdded.append(NewPostData)
 
     #  now lets broadcast this new post to all the recipients.
-    emit("PostList_Updated", jsons.dump ({"success": True , "NewPost": NewPostData , "PostDeleted" : postDeleted }), broadcast=True  , room=channelName.lower()  )
+    emit("PostList_Updated", jsons.dump ({"success": True , "PostAdded": PostAdded , "PostDeleted" : postDeleted }), broadcast=True  , room=channelName.lower()  )
+    return jsons.dump({"success": True })
+
+
+
+
+
+# --------------------------------------------------------
+#
+@socketio.on('delete_message' )
+def handle_delete_message_event(data):
+    """Broadcast messages"""
+
+    userName = data['username']
+    channelName = data['channel']
+    PostToDeleted = data['PostDeleted']
+
+    ChannelPostList = listOfPostData[channelName.lower()]
+
+    # Now lets try to get the message   
+    ExistingMsgIndex = next ( ( i for i, msg in enumerate ( ChannelPostList ) if msg.PostID == PostToDeleted ) , -1 )
+    if ( ExistingMsgIndex < 0  ):
+        return # this should not happen
+
+    ExistingMsg = ChannelPostList[ExistingMsgIndex]
+    if ( userName.lower() != ExistingMsg.UserName.lower() ):
+        return # this should not happen
+
+    ChannelPostList.pop (ExistingMsgIndex)
+    postDeleted = []
+    postDeleted.append (PostToDeleted)
+
+    #  now lets broadcast this new post to all the recipients.
+    emit("PostList_Updated", jsons.dump ({"success": True , "PostDeleted" : postDeleted }), broadcast=True  , room=channelName.lower()  )
     return jsons.dump({"success": True })
 
 

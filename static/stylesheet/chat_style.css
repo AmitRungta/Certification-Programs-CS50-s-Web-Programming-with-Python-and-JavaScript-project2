@@ -9,23 +9,23 @@
     0% {
         opacity: 1;
         height: 100%;
-        line-height: 100%;
-        padding: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 1em;
+        line-height: 1.5;
+        padding: 0.5em 0.5em 0.5em 1em;
     }
     75% {
         opacity: 0;
         height: 100%;
-        line-height: 100%;
-        padding: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 1em;
+        line-height: 1.5;
+        padding: 0.5em 0.5em 0.5em 1em;
     }
     100% {
         opacity: 0;
         height: 0px;
+        margin-bottom: 0px;
         line-height: 0px;
         padding: 0px;
-        margin-bottom: 0px;
     }
 }
 
