@@ -1,22 +1,3 @@
-function fnGetCurChannelName ( bCanUseLocalStorage )
-{
-    // Retrieve current channel name for the page
-    let CurChannelName = "" ;
-    if ( document.querySelector('#get-channelname') ) 
-        CurChannelName = document.querySelector('#get-channelname').innerHTML;
-
-
-    // AmitTempCode
-
-    return CurChannelName ;
-}
-
-function fnSetCurChannelNameInLocalStorage ( channelName )
-{
-    // AmitTempCode
-
-
-}
 
 
 //------------------------------------------------------------------
@@ -196,7 +177,7 @@ function fnAddPost ( content )
         return ;
 
     // Retrieve username
-    const username = document.querySelector('#get-username').innerHTML;
+    const username = fnGetCurUserName(false) ;
 
     // Retrieve current channel name for the page
     const CurChannelName = fnGetCurChannelName(false);
@@ -289,6 +270,30 @@ function fnDeletePost ( PostIDDeleted )
 
 
 //------------------------------------------------------------------
+function fnCheckAndValidateChannel()
+{
+    CurOpenedChannelName = fnGetCurChannelName ( false ) ;
+    if ( CurOpenedChannelName.length > 0 )
+    {
+        fnSetCurChannelNameInLocalStorage ( CurOpenedChannelName ) ;
+        return ;
+    }
+
+    // Get the channel name from local storage.
+    CurOpenedChannelName = fnGetCurChannelName ( true ) ;
+    if ( CurOpenedChannelName.length > 0 )
+    {
+        window.open ( `/ShowChannel/${CurOpenedChannelName}` , "_top");
+        return ;
+    }
+
+    // We are here this means we donot have any selected channel yet hence show for manage channels.
+    window.open ( "/AddChannel" , "_top");
+}
+
+
+
+//------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
 
     // When channel list is updated for for some new channel added
@@ -307,7 +312,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-  
-    
-
 });

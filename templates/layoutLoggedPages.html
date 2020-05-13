@@ -41,7 +41,7 @@
   <div id="collapse{{CurChannelGenere}}" class="collapse {{showdata}}" aria-labelledby="{{CurChannelGenere}}" data-parent="#ChannelDisplayList">
     <div class="card-body">
       {{#each values}}
-      <p><a href="/ShowChannel/{{this.ChannelName}}" > {{ this.ChannelName }}</a></p>
+      <p><a href="/ShowChannel/{{this.ChannelName}}" >{{ this.ChannelName }}</a></p>
       {{/each}}
     </div>
   </div>
@@ -52,10 +52,10 @@
   {% raw -%}
   <div class="card">
     <div class="card-header" id="{{CurChannelGenere}}">
-      <h5 class="mb-0">
+      <h5 class="mb-0" style="text-align: center; ">
         <button class="btn btn-link {{collapsedcmd}}" data-toggle="collapse" data-target="#collapse{{CurChannelGenere}}" aria-expanded="{{DisplayType}}"
           aria-controls="collapse{{CurChannelGenere}}">
-          {{CurChannelGenere}}
+          <b>{{CurChannelGenere}}</b>
         </button>
       </h5>
     </div>
@@ -78,13 +78,18 @@
 
 {% block NavigationBar %}
 <div class="NavigationBar">
-  <a href="{{ url_for('logout') }}" class="right" >Log Out</a>
+  <a href="{{ url_for('logout') }}" class="right" onclick="fnSetCurChannelNameInLocalStorage('') ; fnSetCurUserNameInLocalStorage('') ;">Log Out</a>
   <a href="{{ url_for('AddChannel') }}" class="right" >Manage Channels</a>
 </div>
 {% endblock %}
 
 {% block heading %}
 {% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Guest{% endif %}, Welcome to Flack !!!
+<!-- Get username -->
+<span id="get-username">{% if current_user.is_authenticated %}{{ current_user.username }}{% endif %}</span>
+
+<!-- Get ChannelName -->
+<span id="get-channelname">{{ channelname }}</span>
 {% endblock %}
 
 
@@ -93,7 +98,6 @@
 {% block BodyData %}
 
 <div class="container">
-
   <div class="row">
     <div class="col-md-3 col-sm-6 col-12">
       <div id="ChannelDisplayList"></div>
@@ -111,13 +115,18 @@
   </div>
 </div>
 
-<!-- Get username -->
-<span id="get-username" >{% if current_user.is_authenticated %}{{ current_user.username }}{% endif %}</span>
-
-<!-- Get ChannelName -->
-<span id="get-channelname" >{{ channelname }}</span>
 
 
+<script>
+  //------------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+
+    curusername = fnGetCurUserName(false);
+    if (curusername.length > 0) {
+      fnSetCurUserNameInLocalStorage(curusername) ;
+    }
+  });  
+</script>
 
 
 {% endblock %}

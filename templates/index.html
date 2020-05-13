@@ -54,6 +54,21 @@ Welcome to Flack...
 
 
 
+<script>
+  //------------------------------------------------------------------
+  document.addEventListener('DOMContentLoaded', () => {
 
+    curusername = fnGetCurUserName(true);
+    if (curusername.length > 0) {
+      //------------------------------------------------------------------
+      // Make 'enter' key submit message
+      let UserNameNode = document.getElementsByName("inputUserName");
+      if (UserNameNode) {
+        UserNameNode[0].value = curusername;
+        document.getElementsByTagName("form")[0].submit(); // Sbmit this form.
+      };
+    }
+  });  
+</script>
 
 {% endblock %}

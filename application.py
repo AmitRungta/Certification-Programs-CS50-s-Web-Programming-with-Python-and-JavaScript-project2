@@ -67,7 +67,7 @@ def load_user(username):
 def index():
     """ Default page to retun login data """
     if current_user.is_authenticated:
-        return redirect(url_for('AddChannel'))
+        return redirect(url_for('ShowChannel',channel_name=""))
 
     if request.method == 'POST':
         username = request.form.get('inputUserName')
@@ -75,7 +75,7 @@ def index():
 
         if user :
             login_user(user)
-            return redirect(url_for('AddChannel'))
+            return redirect(url_for('ShowChannel',channel_name=""))
 
     return render_template("index.html")
 
@@ -98,7 +98,7 @@ def logout():
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
-    return render_template('404.html'), 404
+    return render_template('404.html' , title = str(e)), 404
 
 
 
@@ -156,11 +156,19 @@ def handle_add_channel_event(data):
 
 # --------------------------------------------------------
 #
+@app.route("/ShowChannel/", methods = ['GET', 'POST'])
 @app.route("/ShowChannel/<channel_name>", methods = ['GET', 'POST'])
 @login_required
 def ShowChannel(channel_name=""):
 
     channel_name = channel_name.strip()
+
+    # Now lets try to find this channel in our channel list.
+    if ( len ( channel_name ) > 0 ):
+        AlreadyPresent = any ( x for x in listOfChannels if x.ChannelName.lower() == channel_name.lower())
+        if False == AlreadyPresent :
+            return redirect(url_for('AddChannel'))
+
     # if the user have come here directly then move back to index page.
     return render_template("showchannel.html", username=current_user.username, channelname=channel_name)
 

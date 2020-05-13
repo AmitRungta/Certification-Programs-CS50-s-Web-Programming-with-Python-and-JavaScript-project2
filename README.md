@@ -9,8 +9,7 @@ Web Programming with Python and JavaScript
 --> Channel Creation: Once the user is logged in then he has a option for channel creation. Here the user can add a new channel. When adding a channel we ask for channel name and it Genre. For showing the channels we use group them by Genre for appealing display. While adding the channel name we do basic varification like channel name should not be empty or not already added. Use can also manage channels even when in post page by selecting the option in the navigation bar. When the user logs in and if no channels are already added then we show him this dialog for channel addition first before posting new messages on any channel. 
 
 
---> Remembering the Channel: If a user is on a channel page, closes the web browser window, and goes back to web application, it remebers the last used channel name as its stored in the local storage and reloads the messages for that channel.
-****************************************************
+--> Remembering the Channel: In this when we are logged then we save the user name and the last used channel i nthe local storage. On logging out we clear these values from the local storage. If user coses the browser window without logging out then when loading the index page we check if the user name is present in the localstorage or not. If its present then we submit the login form with the selected username by javascript for loging. Similarly we do the same for remembering the last used channel name.
 
 
 --> Channel List: After the user logs in we show him the list of all the channels available. As the channels are groupped with Genre we show them as a 'Accordion' groupped by Genre. In this when the user selects a Genre we show all the channels of this genre. By clicking on any channel user can see / send messages to the given channel.

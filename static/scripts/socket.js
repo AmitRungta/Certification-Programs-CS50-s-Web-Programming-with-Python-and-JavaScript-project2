@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket = io.connect(socketlocation);
 
     // Retrieve username
-    username = document.querySelector('#get-username').innerHTML;
+    username = fnGetCurUserName(false) ;
 
     // Retrieve current channel name for the page
     CurChannelName = fnGetCurChannelName ( false ) ;
@@ -39,17 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
         
             ChannelName = ChannelNameNode.value;
-            ChannelName = ChannelName.trim();
-            if (ChannelName === "") {
-                UsrErrMsgNode.innerHTML = `Channel name cannot be left empty!!!`;
+            ChannelGenre = ChannelGenreNode.value;
+            errmsg = IsValidUserName ( ChannelName , false ) ;
+            if ( errmsg.length > 0 ){
+                UsrErrMsgNode.innerHTML = `Channel name ${errmsg}` ;
                 UsrErrMsgNode.style.display = "block";
                 return false;
             }
-        
-            ChannelGenre = ChannelGenreNode.value;
-            ChannelGenre = ChannelGenre.trim();
-            if (ChannelGenre === "") {
-                UsrErrMsgNode.innerHTML = `Channel genre cannot be left empty!!!`;
+
+            errmsg = IsValidUserName ( ChannelGenre , false ) ;
+            if ( errmsg.length > 0 ){
+                UsrErrMsgNode.innerHTML = `Channel genre ${errmsg}` ;
                 UsrErrMsgNode.style.display = "block";
                 return false;
             }
